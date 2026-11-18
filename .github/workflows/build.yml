@@ -1,0 +1,29 @@
+name: build-voiceink
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - name: Clone VoiceInk
+        run: git clone --depth 1 https://github.com/Beingpax/VoiceInk.git
+
+      - name: Show toolchain
+        run: xcodebuild -version && swift --version
+
+      - name: Build (local, ad-hoc signed)
+        working-directory: VoiceInk
+        run: make local LOCAL_CODESIGN_IDENTITY=-
+
+      - name: Package app
+        run: cd ~/Downloads && ditto -c -k --keepParent VoiceInk.app VoiceInk-local.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VoiceInk-local
+          path: /Users/runner/Downloads/VoiceInk-local.zip
+          if-no-files-found: error
