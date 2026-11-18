@@ -5,14 +5,19 @@ on:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 90
     steps:
       - name: Clone VoiceInk
         run: git clone --depth 1 https://github.com/Beingpax/VoiceInk.git
 
-      - name: Show toolchain
-        run: xcodebuild -version && swift --version
+      - name: Select newest Xcode
+        run: |
+          ls /Applications/ | grep -i xcode
+          NEWEST=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          echo "Selecting $NEWEST"
+          sudo xcode-select -s "$NEWEST"
+          xcodebuild -version && swift --version
 
       - name: Build (local, ad-hoc signed)
         working-directory: VoiceInk
